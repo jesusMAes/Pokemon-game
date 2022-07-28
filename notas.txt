@@ -1,0 +1,34 @@
+Creamos el mapa en Tiled, usamos una capa para cada cosa que queramos que se vea, luego creamos una capa llamada colisiones que es pintar de rojo las zonas que queremos que colisionen. Una vez hecho el mapa  exportamos primero las capas sin colisiones ni las zonas de batalla como un png 
+
+Una vez creado el html creamos un objeto canvas, en indexx lo llamamos con queryselector, luego creamos un objeto c que llama a ese canvas y obtiene el contexto de la api 2d:
+const canvas = document.querySelector('canvas')
+const c = canvas.getContext('2d');
+
+Para cargar la imagen usamos el objeto c y llamamos a drawImage y dibujamos lo que sería el Png que es basicamente el mapa dibujado, solo con eso ya podemos ir moviendo el mapa alrededor del personaje y parece que te mueves y las colisiones salen de la capa collision que exportamos aparte
+
+Hay que recordar que drawImage recibe un objeto imagen html entonces tenemos que crear ese objeto, luego llamarlo y pasarle el source antes de dibujarlo
+
+const image =  new Image();
+image.src ='./assets/PokeIslan.png'
+
+se puede crear una funcion que reciba el src y devuelva la imagen 
+function createImage(source){
+  const image = new Image();
+  image.src=source;
+  return image
+}
+
+para dibujar al personaje usa el mismo proceso aunque yo lo metería en una clase usando sus sprites en atributos
+
+he alterado el tutorial, ahora el background se dibuja desde una clase background que en el constructor recibe la imagen y posiciones, su metodo draw dibuja una imagen con la source del constructor y el metodo update recibe c como context para dibujar en el canvas y luego la x y la y que son variables que se actualizan al pulsar teclas, en la funcion update actualizamos los valores de su posicion con esas variables
+
+voy a probar a hacer lo mismo con la clase Player
+
+conseguido, he añadido un objeto current spritesheet y otro que almacena las claves del sprite en cada posicion, al pulsar una tecla le decimos que current spritesheet cambia a spritesheet correr izquierda y el draw usa las propiedades de current spritesheet para cambiar la imagen
+
+
+Para las colisiones exporta el json de tiled y copia el array de collision que marca las zonas en las que chocas y lo carga en una constante llamada collisions
+
+luego el array del json lo transforma en un array de dos dimensiones
+
+Basicamente crea una fila con el ancho del mapa que en este caso son 70 casillas y cada 70 numeros aumenta el indice y y vuelve a iterar pero en la fila de abajo
