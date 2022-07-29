@@ -4,7 +4,12 @@ export default class Player {
   constructor ({
     c
   }){
-    
+    this.position = {
+      x: 410,
+      y: 480
+    }
+    this.width=48
+    this.height=48
     //vamos a recibir el context por parametros para dibujar
     this.c = c
     this.frameRatio =0
@@ -53,15 +58,19 @@ export default class Player {
   //frame ratio sirve para ralentizar la sucesión de frames del spritesheet
   update(){
     this.frameRatio++
-    if(this.frameRatio %18==0){
+    if(this.frameRatio ==15){
     this.actualFrame++
+    this.frameRatio=0
     }
     if(this.actualFrame >=3){
       this.actualFrame=1
+      
+
     }
 
     this.draw()
   }
+
   //en lugar de meter el codigo de las keys podemos hacer un metodo que las cambie y llamarlo allí
   cambiaSprite(direccion){
     switch (direccion){

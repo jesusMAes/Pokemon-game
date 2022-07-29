@@ -32,3 +32,16 @@ Para las colisiones exporta el json de tiled y copia el array de collision que m
 luego el array del json lo transforma en un array de dos dimensiones
 
 Basicamente crea una fila con el ancho del mapa que en este caso son 70 casillas y cada 70 numeros aumenta el indice y y vuelve a iterar pero en la fila de abajo
+luego con eso usa una función para detectar colisiones comparando tu posicion en x e y con la de cada casilla, si están cerca salta el if y no puedes moverte en esa dirección
+
+para las batallas usamos la misma logica que las colisiones pero en lugar de bloquear el movimiento activamos una variable batalla que cada vez que pulsas una tecla se pone en false, si estás dentro del cesped se pone en true. Podemos añadir como condicion que math.random() sea menor o mayor que x numero para que no salte nada más pisar sino que tengas que pasear por el cesped
+
+me he saltado mucha parte pero reengancho en como crear las escenas de batalla, lo primero es activar la variable batalla 
+
+Lo primero es hacer que el personaje deje de moverse,creamos un objeto battle y le damos la propiedad iniciado, como en keyevent usabamos una variable moving para controlar si puede o no moverse, le decimos que si battle está iniciado moving = false y bloqueamos el movimiento, como el cambio de dirección está fuera del if moving puede girarse pero no desplazarse
+
+Hecho eso activamos la animación a la escena de la batalla, la animación no la hace en canvas sino que crea un div del tamaño del canvas y tapa el lienzo, lo pone de color negro y luego hace una animación css para cambiarle la opacidad y parece una cortinilla.
+
+Para eso crea un div envolviendo al canvas y luego dentro de ese div otro div que será la pantalla negra, el tamaño inicial es cero, luego la idea es usar una animación que le cambie la opacidad, en lugar de hacerla con CSS usa GSAP
+
+para coger el div con el id de blackscreen usamos: gsap.to('#blackscreen'), recibe un segundo argumento que es un objeto con las propiedades que queremos cambiar en el tiempo, la propiedad yoyo devuelve a la opacidad inicial, es decir: 0
