@@ -155,7 +155,7 @@ function animate (){
  window.requestAnimationFrame(animate)
  background.update(c)
   boundaries.forEach(boundary =>{
-   boundary.draw('red')
+   boundary.draw('rgba(0,0,0,0)')
   });
   hierba.draw(c);
   battleZonesMap.forEach(zone =>{
