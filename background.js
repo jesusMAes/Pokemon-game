@@ -2,13 +2,17 @@
   constructor ({
     backgroundImageX,
     backgroundImageY,
-    source
+    source,
+    width,
+    heigt
   }){
     this.position ={
       x:backgroundImageX,
       y:backgroundImageY//la primera vez lo creamos aquí luego lo movemos
     }
     this.src= source
+    this.width=width,
+    this.heigt=heigt
     
   }
 
@@ -17,6 +21,9 @@
     image.src = this.src
    
     c.drawImage(image, this.position.x, this.position.y)
+    if(this.width!=''){
+      c.drawImage(image, this.position.x, this.position.y, this.width, this.heigt)
+    }
   }
 
   update (c){

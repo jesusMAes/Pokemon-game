@@ -1,20 +1,16 @@
 import Background from './background.js'
 import Player from './Player.js';
+import Pokemon from './PokeClass.js'
 const canvas = document.querySelector('canvas');
 
 
-canvas.width= window.innerWidth;
-canvas.height= window.innerHeight-20;
+canvas.width= 1024;
+canvas.height= 768;
 
 
 const c = canvas.getContext('2d');
 
-gsap.to('#blackscreen', {
-  opacity: 1,
-  repeat: 3,
-  yoyo:true,
-  duration:0.3
-})
+
 const collisionsMap = []
 for(let i=0; i< collisions.length; i+=70){
   collisionsMap.push(collisions.slice(i,70+i))
@@ -149,10 +145,11 @@ const player = new Player({c});
 
 let moving = true
 
-
+let animationId=0;
 function animate (){
   
- window.requestAnimationFrame(animate)
+ animationId= window.requestAnimationFrame(animate);
+ console.log(animationId)
  background.update(c)
   boundaries.forEach(boundary =>{
    boundary.draw('rgba(0,0,0,0)')
@@ -169,10 +166,64 @@ function animate (){
   
 }
 
-animate ();
+//escena de moverse por el mundo
+// animate ();
+const gusano  = new  Pokemon({
+  c,
+  spriteheet: './assets/sprites/draggleSprite.png',
+  frames:5,
+  position:{
+    x:800,
+    y:150,
+  },
+  isEnemy:true
 
+});
 
-let BatallaActiva=false;
+const llamita = new Pokemon({
+  c,
+  spriteheet: './assets/sprites/embySprite.png',
+  frames:4,
+  position:{
+    x:300,
+    y:450
+  }
+})
+
+//escena de peleas
+
+const battleBackground = new Background({
+  backgroundImageX: 0,
+  backgroundImageY: 0,
+  source: './assets/battleBackground.png',
+  width:canvas.width,
+  heigt:canvas.height
+})
+function animateBattle(){
+  window.requestAnimationFrame(animateBattle)
+  battleBackground.update(c)
+
+  gusano.update()
+  llamita.update()
+
+}
+animateBattle()
+
+//event listener para las peleas
+document.querySelectorAll('button').forEach(button =>{
+  button.addEventListener('click', (e)=>{
+    console.log(e.currentTarget.innerHTML)
+    llamita.atack({
+      attack:{
+        name:'Tackle',
+        damage:10,
+        type:'Normal'
+      },
+      recipient: gusano
+    });
+  })
+})
+
 
 const battle ={
   initiated:false
@@ -200,7 +251,29 @@ function activarBatalla(){
       ){//if
 
       battle.initiated=true
-      console.log(battle)
+       //desactivamos el animate actual
+       window.cancelAnimationFrame(animationId)
+      gsap.to('#blackscreen', {
+        opacity: 1,
+        repeat: 2,
+        yoyo:true,
+        duration:0.3,
+        onComplete(){
+          gsap.to('#blackscreen',{
+            opacity:1,
+            onComplete(){
+          //activamos una nueva animación cuando acaba anterior
+           animateBattle()
+           gsap.to('#blackscreen',{
+            opacity:0
+           })
+            }
+          })
+
+        
+
+        }
+      })
       
       break
     
@@ -238,6 +311,7 @@ window.addEventListener('keydown', (e) =>{
 
         if(moving==true){
         background.move("izquierda")
+
         detalles.forEach(detalle => {
           detalle.move("izquierda");
         })
@@ -274,6 +348,7 @@ window.addEventListener('keydown', (e) =>{
 
         if(moving){
         background.move("derecha")
+
         detalles.forEach(detalle => {
           detalle.move("derecha");
         })
@@ -311,6 +386,7 @@ window.addEventListener('keydown', (e) =>{
 
       if(moving){
       background.move("abajo")
+
       detalles.forEach(detalle => {
         detalle.move("abajo");
       })
@@ -349,6 +425,7 @@ window.addEventListener('keydown', (e) =>{
         //condicion para moverse arriba
         if(moving){
         background.move("arriba")
+
         detalles.forEach(detalle => {
           detalle.move("arriba");
         })

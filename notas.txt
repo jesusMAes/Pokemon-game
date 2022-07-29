@@ -45,3 +45,36 @@ Hecho eso activamos la animación a la escena de la batalla, la animación no la
 Para eso crea un div envolviendo al canvas y luego dentro de ese div otro div que será la pantalla negra, el tamaño inicial es cero, luego la idea es usar una animación que le cambie la opacidad, en lugar de hacerla con CSS usa GSAP
 
 para coger el div con el id de blackscreen usamos: gsap.to('#blackscreen'), recibe un segundo argumento que es un objeto con las propiedades que queremos cambiar en el tiempo, la propiedad yoyo devuelve a la opacidad inicial, es decir: 0
+
+para cambiar entre escenas en animate() donde está window.requestanimationframe que es el que se llama a sí mismo continuamente lo convierte en una variable
+const animationId = window.requestanimationframe(), cada vuelta nos da un nuevo id, imagino que ese id lo podemos usar cuando acaba la batalla para volver al frame exacto en que la cortamos
+
+Entonces en el metodo que se activ cuando empieza una batalla llamamos al metodo window.cancelAnimationFrame() que cancela a requestanimationframe, y como argumento le pasamos el animationID con el numero de frame en que está 
+
+luego al activar la batalla llamamos a una función llamada animateBattle y dentro de esa función llamamos a request animationFrame, esto crea una nueva animación o escena o como quieras llamarlo
+
+dentro de ese método cargamos la imagen del campo de batalla e imagino que toda la lógica de la pelea
+
+he creado una clase pokemon que lleva el sprite que usa, la posición en la que esta y luego la instanciamos en el campo de batalla y ya tenemos nuestros luchadores, en la versión grande podemos hacer un array con los pokemons que contenga nombre, estadísticas, spritesheets, ataques y lo que se me ocurra y luego al activarse la batalla coges uno al azar o de una lista y lo instancias para el enemigo
+
+Para los botones de ataque crea una zona en la que añade los ataques crea divs en el html imagino que luego los cogerá los pondrá encima del canvas y serán los ataques, basicamente usa botones para cada ataque y luego con css le da forma, interesting esto, podemos coger divs y usarlos para diálogos y con js le metemos el texto del personaje o su retrato o lo que sea
+
+Para crear las barras de vida se puede añadir un atributo hp al pokemon aunque él usa un div para dibujarlas, igualmente desde js luego podríamos llenar el nombre y la vida dentro del div
+
+para el ataque creamos en la clase pokemon un metodo atacar que se activa cuando pulsamos un ataque, a ese objeto le pasamos por parametros cosas como el nombre del ataque, el daño
+
+aquí no lo hace pero lo mejor es hacer una clase ataques en la que tengan el sprite de la animación, el daño y demás y luego en las propiedades del pokemon hacemos un array de ataques con esos ataques así podemos llamar a ese ataque dentro del metodo atack del pokemon y lo que viene siendo la animacion y demás se ejecuta solo 
+
+En el tutorial a atack le pasa nombre, daño y typo, imagino que luego en el metodo podríamos coger el tipo del enemigo para multiplicar el daño o podriamos meter un numero random que haga crítico y el resto cuestión de quitarle vida al enemigo cambiando sus propiedades
+
+Esto es interesante, le pasa por propiedades al metodo atack el objeto que lo va a recibir, es decir el pokemon enemigo, así luego dentro del metodo atacar le podemos cambiar las propiedades a ese objeto
+
+algo interesante para levear los pokemones es que sus estadísticas sean un array y cuando suba de nivel se elijan algunas aleatorias y se aumenten por un numero aleatorio, o en determinados pokemon que siempre suba una más que otra cosa que en el array con una variable de incremento se puede hacer
+
+Para bajar la vida del enemigo con gsap.to(), al ser una animación la barra baja suave, cogemos el div con el id vida del enemigo y luego modificamos su ancho. La forma guay de hacerlo sería con una barra de vida en la que el 100% de la vida represente el ancho máximo y luego bajar en base a porcentajes, así en tu clase pokemon puedes tener vida total y vida actual y cuando empiezas otro combate se dibuja la actual en lugar de empezar con la vida a tope
+
+para que el enemigo ataque tan solo repetimos la llamada a atack pero en este caso el recipient eres tu
+
+Una forma interesante de hacer los ataques es que cada ataque sea un objeto de tipo ataque, ese objeto tiene asociado un spritesheet, y una animación, luego nuestro pokemon en propiedades tiene esos ataques y en el momento de atacar llamamos a la animación de ese ataque en concreto
+
+Ah mira, en el tutorial hace algo parecido pero con una constante, yo haría una clase para poder crear el metodo y luego si eso se pueden guardar la animación en un array de objetos y cuando lo necesites creas un nuevo objeto pasandole los datos del array cuyo indice tenga ese nombre
