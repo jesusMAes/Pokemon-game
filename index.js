@@ -1,6 +1,8 @@
 import Background from './background.js'
 import Player from './Player.js';
 import Pokemon from './PokeClass.js'
+import Sprites from './sprites.js';
+
 const canvas = document.querySelector('canvas');
 
 
@@ -156,7 +158,7 @@ function animate (){
   });
   hierba.draw(c);
   battleZonesMap.forEach(zone =>{
-    zone.draw('blue')
+    zone.draw('rgba(0,0,0,0)')
   })
 
 
@@ -168,26 +170,30 @@ function animate (){
 
 //escena de moverse por el mundo
 // animate ();
-const gusano  = new  Pokemon({
-  c,
-  spriteheet: './assets/sprites/draggleSprite.png',
-  frames:5,
-  position:{
-    x:800,
-    y:150,
-  },
-  isEnemy:true
+let gusano  
+//  new  Pokemon({
+//   name:'Gusano',
+//   c,
+//   spriteheet: './assets/sprites/draggleSprite.png',
+//   frames:5,
+//   position:{
+//     x:800,
+//     y:150,
+//   },
+//   isEnemy:true,
+//   attacks:[attacks.Tackle, attacks.Fireball]
+// });
 
-});
-
-const llamita = new Pokemon({
+let llamita = new Pokemon({
+  name:'Llamita',
   c,
   spriteheet: './assets/sprites/embySprite.png',
   frames:4,
   position:{
     x:300,
     y:450
-  }
+  },
+  attacks:[attacks.Tackle, attacks.Fireball]
 })
 
 //escena de peleas
@@ -199,29 +205,156 @@ const battleBackground = new Background({
   width:canvas.width,
   heigt:canvas.height
 })
-function animateBattle(){
-  window.requestAnimationFrame(animateBattle)
-  battleBackground.update(c)
 
-  gusano.update()
-  llamita.update()
+let renderedSprites =[gusano,llamita];
+const botones = document.querySelector('#ataques');
+let battleAnimationId;
+let queue = []
 
-}
-animateBattle()
+//la llamamos al inicio de cada batalla para resetear la interfaz
+function initBattle(){
+  document.querySelector('#userInterface').style.display='block'
+  document.querySelector('#dialogue').style.display='none'
+  document.querySelector('#vidaEnemigo').style.width='100%'
+  document.querySelector('#vidaLlamita').style.width='100%'
+  document.querySelector('#ataques').replaceChildren()
+  gusano = new  Pokemon({
+    name:'Gusano',
+    c,
+    spriteheet: './assets/sprites/draggleSprite.png',
+    frames:5,
+    position:{
+      x:800,
+      y:150,
+    },
+    isEnemy:true,
+    attacks:[attacks.Tackle, attacks.Fireball]
+  });
+  llamita = new Pokemon({
+    name:'Llamita',
+    c,
+    spriteheet: './assets/sprites/embySprite.png',
+    frames:4,
+    position:{
+      x:300,
+      y:450
+    },
+    attacks:[attacks.Tackle, attacks.Fireball]
+  });
+  renderedSprites =[gusano,llamita];
+  //metemos los botones en initbatle por si cambian los ataques que se generen al inicio
+  llamita.attacks.forEach(attack =>{
+    const boton = document.createElement('button');
+    boton.innerHTML = attack.name
+    botones.append(boton);
+  })
+  //vaciamos la cola de acciones 
+  queue = []
 
 //event listener para las peleas
 document.querySelectorAll('button').forEach(button =>{
-  button.addEventListener('click', (e)=>{
-    console.log(e.currentTarget.innerHTML)
-    llamita.atack({
-      attack:{
-        name:'Tackle',
-        damage:10,
-        type:'Normal'
-      },
-      recipient: gusano
+  button.addEventListener('click', (e) => {
+    const selectedAtack = attacks[e.currentTarget.innerHTML];
+    llamita.attack({
+      attack:selectedAtack,
+      recipient: gusano,
+      renderedSprites
     });
+    if(gusano.health <=0){
+      //cuando el enemigo muere
+      queue.push(()=>{  
+        gusano.faint()
+       
+      })
+       //cortinilla y volvemos al mapa
+       queue.push(()=>{  
+        gsap.to('#blackscreen',{
+          opacity:1,
+          onComplete: () =>{
+            window.cancelAnimationFrame(battleAnimationId)
+            animate()
+            document.querySelector('#userInterface').style.display='none'
+            gsap.to('#blackscreen',{
+              
+              opacity:0
+
+            })
+            battle.initiated=false
+
+          }
+        })
+      })
+    }
+    
+    //ataque enemigo
+    const randomAttack=gusano.attacks[Math.floor(Math.random()*gusano.attacks.length)];
+
+    queue.push(()=>{  
+      gusano.attack({
+        attack:randomAttack,
+        recipient: llamita,
+        renderedSprites
+      });
+      if(llamita.health <=0){
+        //cuando el tu mueres
+        queue.push(()=>{  
+          llamita.faint()
+        })  
+        gsap.to('#blackscreen',{
+          opacity:1,
+          onComplete: () =>{
+            window.cancelAnimationFrame(battleAnimationId)
+            animate()
+            document.querySelector('#userInterface').style.display='none'
+            gsap.to('#blackscreen',{
+              opacity:0
+            })
+            battle.initiated=false
+          }
+        })
+      }
+    })
   })
+ 
+  button.addEventListener('mouseenter', (e)=>{
+    const selectedAtack = attacks[e.currentTarget.innerHTML];
+    
+    document.querySelector('#tipoAtaque').innerHTML=selectedAtack.type+'<br> Damage: '+selectedAtack.damage+'%';
+    document.querySelector('#tipoAtaque').style.color=selectedAtack.color;
+
+    
+  })
+  button.addEventListener('mouseleave', (e)=>{
+    document.querySelector('#tipoAtaque').innerHTML='Attack Type';
+    document.querySelector('#tipoAtaque').style.color='black';
+  })
+});
+
+}//FIN INIT BATTLE
+function animateBattle(){
+  battleAnimationId=window.requestAnimationFrame(animateBattle)
+  //eso almacena el frame en battle animation y al mismo tiempo ejecuta la animación en bucle
+  battleBackground.update(c)
+
+ gusano.update()
+ llamita.update()
+
+  renderedSprites.forEach((sprite)=>{
+    sprite.draw();
+  })
+ 
+}
+initBattle()
+animateBattle()
+
+
+document.querySelector('#dialogue').addEventListener('click', (e)=>{
+  if(queue.length >0){
+    queue[0]();//así ejecutamos una función almacenada en el array
+    queue.shift()
+  }else{
+  e.currentTarget.style.display='none'
+  }
 })
 
 
@@ -256,23 +389,24 @@ function activarBatalla(){
       gsap.to('#blackscreen', {
         opacity: 1,
         repeat: 2,
-        yoyo:true,
-        duration:0.3,
-        onComplete(){
-          gsap.to('#blackscreen',{
-            opacity:1,
-            onComplete(){
-          //activamos una nueva animación cuando acaba anterior
-           animateBattle()
-           gsap.to('#blackscreen',{
-            opacity:0
-           })
+        yoyo: true,
+        duration: 0.3,
+        onComplete() {
+          //llamamos a init battle para que ponga la interfaz
+          initBattle()
+          gsap.to('#blackscreen', {
+            opacity: 1,
+            onComplete() {
+              //activamos una nueva animación cuando acaba anterior
+              animateBattle()
+              gsap.to('#blackscreen', {
+                opacity: 0
+
+              })
             }
           })
-
-        
-
         }
+        
       })
       
       break

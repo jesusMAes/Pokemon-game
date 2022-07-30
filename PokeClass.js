@@ -1,5 +1,8 @@
+import Sprites from "./sprites.js";
+
 export default class PokeClass{
   constructor({
+    name,
     c,
     spriteheet,
     frames,
@@ -9,8 +12,10 @@ export default class PokeClass{
     position={
       x,
       y
-    }
+    },
+    attacks
   }){
+    this.name=name,
     this.c = c,
     this.ancho = ancho,
     this.health=100,
@@ -25,6 +30,7 @@ export default class PokeClass{
       x: position.x,
       y: position.y
     }
+    this.attacks=attacks
   }
 
   draw(){
@@ -63,46 +69,110 @@ export default class PokeClass{
     this.draw()
   }
 
-  atack({attack, recipient}){
-    const timeline = gsap.timeline();//permite controlar las animaciones de gsap en el tiempo, usando timeline podemos poner un to() detrás de una animación y definir otra, así se van ejecutando en orden
-    this.health -= attack.damage;
-    let movementDistance= 20;
-    if(this.isEnemy){
-      movementDistance =-20;
-    }
+  attack({attack, recipient, renderedSprites}){
+    //mostrar el dialogo del ataque
+    let dialogo =  document.querySelector('#dialogue');
+    dialogo.style.display ='block';
+     dialogo.innerHTML= this.name+ ' usó '+attack.name+'. Hace '+ attack.damage+' puntos de daño.';
+
     let healthBar ='#vidaEnemigo'
-    if(this.isEnemy){
-      healthBar='#vidaLlamita'
-    }
-   timeline.to(this.position,{
-    x: this.position.x-movementDistance,
-   }).to(this.position,{
-    x:this.position.x +movementDistance*2,
-    duration: 0.1,
-    onComplete:() =>{
-      gsap.to(healthBar,{
-        width: this.health + '%'
+        if(this.isEnemy){
+          healthBar='#vidaLlamita'
+        }
+    recipient.health -= attack.damage;
+    const c=this.c
+    switch(attack.name){
+      case 'Fireball':
+       const fireball = new Sprites({
+        c,
+        position: this.position,
+        width: 64,
+        height: 64,
+        source:'./assets/sprites/fireball.png',
+        frames:2
+       })
+       renderedSprites.push(fireball)
+
+       gsap.to(fireball.position, {
+        x:recipient.position.x,
+        y:recipient.position.y,
+        onComplete: ()=> {
+          //golpea enemigo
+          gsap.to(healthBar,{
+            width: recipient.health + '%'
+            
+          })
+          gsap.to(recipient.position, {
+            x: recipient.position.x+10,
+            yoyo:true,
+            repeat:3,
+            duration:0.1,
+          })
+          gsap.to(recipient, {
+            opacity:0,
+            repeat:5,
+            yoyo:true,
+            duration:0.1
+          })
+          renderedSprites.pop()
+        }
+       })
+       break
+      case 'Tackle':
+        const timeline = gsap.timeline();//permite controlar las animaciones de gsap en el tiempo, usando timeline podemos poner un to() detrás de una animación y definir otra, así se van ejecutando en orden
+
+        let movementDistance= 20;
+        if(this.isEnemy){
+          movementDistance =-20;
+        }
         
-      })
-      gsap.to(recipient.position, {
-        x: recipient.position.x+10,
-        yoyo:true,
-        repeat:4,
-        duration:0.1,
-      })
-      gsap.to(recipient, {
-        opacity:0,
-        repeat:5,
-        yoyo:true,
-        duration:0.1
-      })
+       timeline.to(this.position,{
+        x: this.position.x-movementDistance,
+       }).to(this.position,{
+        x:this.position.x +movementDistance*2,
+        duration: 0.1,
+        onComplete:() =>{
+          //golpea enemigo
+          gsap.to(healthBar,{
+            width: recipient.health + '%'
+            
+          })
+          gsap.to(recipient.position, {
+            x: recipient.position.x+10,
+            yoyo:true,
+            repeat:3,
+            duration:0.1,
+          })
+          gsap.to(recipient, {
+            opacity:0,
+            repeat:5,
+            yoyo:true,
+            duration:0.1
+          })
+        }
+       }).to(this.position,{
+         x:this.position.x,//vuelve a la posición
+         
+        })
+        break
     }
-   }).to(this.position,{
-    x:this.position.x-20
-   })
+
+   
+  
    //un placaje, lo animamos alante y atrás
 
    //también hace una animación para cuando el enemigo es alcanzado, moviendolo y haciendo que parpade
 
+  }
+
+  faint(){
+    let dialogo =  document.querySelector('#dialogue');
+    dialogo.innerHTML = this.name + ' ha sido derrotado! '
+    gsap.to(this.position, {
+        y: this.position.y+20
+    })
+    gsap.to(this,{
+      opacity:0,
+    })
   }
 }

@@ -49,7 +49,7 @@ para coger el div con el id de blackscreen usamos: gsap.to('#blackscreen'), reci
 para cambiar entre escenas en animate() donde está window.requestanimationframe que es el que se llama a sí mismo continuamente lo convierte en una variable
 const animationId = window.requestanimationframe(), cada vuelta nos da un nuevo id, imagino que ese id lo podemos usar cuando acaba la batalla para volver al frame exacto en que la cortamos
 
-Entonces en el metodo que se activ cuando empieza una batalla llamamos al metodo window.cancelAnimationFrame() que cancela a requestanimationframe, y como argumento le pasamos el animationID con el numero de frame en que está 
+Entonces en el metodo que se activa cuando empieza una batalla llamamos al metodo window.cancelAnimationFrame() que cancela a requestanimationframe, y como argumento le pasamos el animationID con el numero de frame en que está 
 
 luego al activar la batalla llamamos a una función llamada animateBattle y dentro de esa función llamamos a request animationFrame, esto crea una nueva animación o escena o como quieras llamarlo
 
@@ -77,4 +77,39 @@ para que el enemigo ataque tan solo repetimos la llamada a atack pero en este ca
 
 Una forma interesante de hacer los ataques es que cada ataque sea un objeto de tipo ataque, ese objeto tiene asociado un spritesheet, y una animación, luego nuestro pokemon en propiedades tiene esos ataques y en el momento de atacar llamamos a la animación de ese ataque en concreto
 
-Ah mira, en el tutorial hace algo parecido pero con una constante, yo haría una clase para poder crear el metodo y luego si eso se pueden guardar la animación en un array de objetos y cuando lo necesites creas un nuevo objeto pasandole los datos del array cuyo indice tenga ese nombre
+Ah mira, en el tutorial hace algo parecido pero con una constante, yo haría una clase para poder crear el metodo y luego si eso se pueden guardar la animación en un array de objetos y cuando lo necesites creas un nuevo objeto pasandole los datos del array cuyo indice tenga ese nombre, los pokemones tienen una propiedad isEnemy, con esta propiedad podemos alterar la posición del pokemon o la x e y del ataque
+
+Para dibujar ataques con sprites debemos asegurarnos de que se dibujan en el canvas, para eso crea una variable rendered sprites y se la pasamos al objeto, luego en el ataque añadimos ese ataque a rendered sprites, en animate estamos animando eso y cuando acaba lo sacamos de rendered sprite.
+
+Yo en el array que almacenase los ataques cogería y metería la animación de cada uno luego esa animación seria propiedad de la clase ataque y en la función atacar del personaje llamariamos a su ataque.draw o loquesea
+
+Para el ataque del enemigo crea un array y cuando tu pulsas el botón de atacar mete en ese array lo que sería la función de atacar del enemigo diciendole el nombre del ataque, el objetivo y lo de rendered que es lo que permite que se vea, luego en el event listener de cuando pulsas el cuadro de dialogo que te sale al atacar tu coge ese elemento del array que al final es una función y lo llama así que se ejecuta. 
+
+En el siguiente turno tu coges un ataque y volverá a escogerse uno para el enemigo y cuando cierres el dialogo de tu ataque el enemigo atacará
+
+para ejecutar una función almacenada en un array solo hay que poner:
+
+array[0]() y ejecuta la función de esa posición. Para los ataques irá bien si guardamos la animación como propiedad de cada ataque porque al elegir ataque puedes decir: pokemon.attack(), en attack y pasarle el ataque con el nombre del botón y luego en attack decirle: ataques[1]() y ejecutaría la animación
+
+También modifica el click con el texto, no desaparece hasta que el array de ataques esté vacio así cuando clicas la primera vez se ejecuta el ataque del enemigo, tras ejecutarlo vacía el array y cuando clicas la siguiente vez ya se quita y puedes volver a atacar
+
+para el final de la batalla crea un metodo que se añade a la queue cuanto tu salud o la del enemigo valen menos de 0, en el metodo movemos un poquillo al bicho que se muere, lo hacemos transparente luego cogemos el div de la cortinilla y lo animamos para hacer fundido a negro y lo importante, al final paramos la animación de batalla y volvemos a reactivar animate () con el frame en que lo pausamos cuando comenzó la batalla. 
+
+Para cerrar la batalla creamos un objeto battle animation id como hicimos con el otro y llamamos a cancelAnimationFrame() pasandole el id del frame para que se cierre en ese momento
+
+es importante que al terminar una batalla pongamos de nuevo la variable battle initiated en false, es la que controla el movimiento y sin ella no podemos reactivarlo
+
+para el audio hace una variable audio que es un objeto y dentro imagino que guardará los sonidos con sus fuentes y tal
+
+para el audio usa una libreria llamada howler porque parece ser que el objeto audio de javascript es regulero. 
+
+esta libreria nos permite crear el audio en el objeto directo en plan 
+
+const audio={
+  Map: new Howl({
+    src: './audio/map.wav',
+    html5:true
+  })
+}
+
+html5 true es para que el servidor lo reproduzca bien

@@ -29,6 +29,7 @@ canvas{
   left: 0;
   right: 0;
   opacity: 0;
+  z-index:10;
 }
 
 #barraAtaques{
@@ -70,6 +71,9 @@ canvas{
 
 #tipoAtaque h1{
  font-size:1rem;
+}
+#tipoAtaque ul{
+  list-style: none;
 }
 
 #healthEnemy{
@@ -136,4 +140,16 @@ background-color: #ccc;
   left: 0;
   right: 0;
   height: 5px;
+}
+
+#dialogue{
+  position: absolute;
+  background-color: white;
+  top:0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 12px;
+  text-align: left;
+  display: none;
 }
