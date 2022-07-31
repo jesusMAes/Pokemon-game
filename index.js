@@ -5,6 +5,7 @@ import Sprites from './sprites.js';
 
 const canvas = document.querySelector('canvas');
 
+audio.Map.play()
 
 canvas.width= 1024;
 canvas.height= 768;
@@ -147,11 +148,11 @@ const player = new Player({c});
 
 let moving = true
 
+//escena de mapa
 let animationId=0;
 function animate (){
   
  animationId= window.requestAnimationFrame(animate);
- console.log(animationId)
  background.update(c)
   boundaries.forEach(boundary =>{
    boundary.draw('rgba(0,0,0,0)')
@@ -168,21 +169,9 @@ function animate (){
   
 }
 
-//escena de moverse por el mundo
-// animate ();
+
 let gusano  
-//  new  Pokemon({
-//   name:'Gusano',
-//   c,
-//   spriteheet: './assets/sprites/draggleSprite.png',
-//   frames:5,
-//   position:{
-//     x:800,
-//     y:150,
-//   },
-//   isEnemy:true,
-//   attacks:[attacks.Tackle, attacks.Fireball]
-// });
+
 
 let llamita = new Pokemon({
   name:'Llamita',
@@ -251,7 +240,7 @@ function initBattle(){
   //vaciamos la cola de acciones 
   queue = []
 
-//event listener para las peleas
+//event listener para las peleas, logica del combate
 document.querySelectorAll('button').forEach(button =>{
   button.addEventListener('click', (e) => {
     const selectedAtack = attacks[e.currentTarget.innerHTML];
@@ -280,6 +269,8 @@ document.querySelectorAll('button').forEach(button =>{
 
             })
             battle.initiated=false
+            audio.battle.stop();
+            audio.Map.play();
 
           }
         })
@@ -310,6 +301,8 @@ document.querySelectorAll('button').forEach(button =>{
               opacity:0
             })
             battle.initiated=false
+            audio.battle.stop();
+            audio.Map.play();
           }
         })
       }
@@ -344,8 +337,11 @@ function animateBattle(){
   })
  
 }
-initBattle()
-animateBattle()
+
+//escenas
+animate ();
+// initBattle()
+// animateBattle()
 
 
 document.querySelector('#dialogue').addEventListener('click', (e)=>{
@@ -385,7 +381,11 @@ function activarBatalla(){
 
       battle.initiated=true
        //desactivamos el animate actual
-       window.cancelAnimationFrame(animationId)
+       window.cancelAnimationFrame(animationId);
+       //paramos la musica del mapa y ponemos la del combate
+       audio.Map.stop()
+       audio.initBattle.play();
+       audio.battle.play();
       gsap.to('#blackscreen', {
         opacity: 1,
         repeat: 2,
@@ -414,12 +414,18 @@ function activarBatalla(){
     }
   }
 }
-
+let iniciarAudio = false
 window.addEventListener('keydown', (e) =>{
   moving = true;
   if(battle.initiated==true){
     moving =false //evitamos que se mueva 
   }
+  //google no permite que suene audio automáticamente, necesita ser iniciado cuando el usuario interactúa con ella
+  if(!iniciarAudio){
+    audio.Map.play()
+    iniciarAudio=true
+  }
+
 
   switch (e.key){
     case 'a':

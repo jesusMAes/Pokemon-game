@@ -83,6 +83,7 @@ export default class PokeClass{
     const c=this.c
     switch(attack.name){
       case 'Fireball':
+        audio.initFireball.play();
        const fireball = new Sprites({
         c,
         position: this.position,
@@ -108,6 +109,7 @@ export default class PokeClass{
             repeat:3,
             duration:0.1,
           })
+          audio.fireballHit.play()
           gsap.to(recipient, {
             opacity:0,
             repeat:5,
@@ -143,6 +145,7 @@ export default class PokeClass{
             repeat:3,
             duration:0.1,
           })
+          audio.tackleHit.play(),
           gsap.to(recipient, {
             opacity:0,
             repeat:5,
@@ -171,7 +174,10 @@ export default class PokeClass{
     gsap.to(this.position, {
         y: this.position.y+20
     })
+    audio.battle.stop()
+    audio.victory.play()
     gsap.to(this,{
+      
       opacity:0,
     })
   }
