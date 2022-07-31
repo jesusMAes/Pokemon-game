@@ -1,11 +1,11 @@
 
 const audio={
   Map: new Howl({
-    src: './audio/map.wav',
+    src: './Audio/map.wav',
     html5:true
   }),
   initBattle: new Howl({
-    src: './audio/initBattle.wav',
+    src: './Audio/initBattle.wav',
     volume:0.1,
     html5:true
   }),
