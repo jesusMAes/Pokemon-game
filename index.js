@@ -5,7 +5,7 @@ import Sprites from './sprites.js';
 
 const canvas = document.querySelector('canvas');
 
-audio.Map.play()
+// audio.Map.play()
 
 canvas.width= 1024;
 canvas.height= 768;
